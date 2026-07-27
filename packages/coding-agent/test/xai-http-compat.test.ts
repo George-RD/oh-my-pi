@@ -67,4 +67,26 @@ describe("xAI HTTP compatibility providers", () => {
 		expect(resolved?.provider).toBe("xai");
 		expect(resolved?.apiKey).toBe("plain-key");
 	});
+	test("an explicit compat-provider preference overrides built-in xAI credentials", async () => {
+		registerOAuthProvider({
+			id: "xai-grok-build",
+			name: "xAI Grok Build",
+			sourceId: SOURCE_ID,
+			login: async () => "unused",
+			xaiHttpCompat: true,
+			xaiHttpBaseUrl: "https://cli-chat-proxy.grok.com/v1",
+		});
+
+		const resolved = await resolveXAIHttpCredentials(
+			registryWith({ "xai-oauth": "oauth-key", xai: "plain-key", "xai-grok-build": "grok-token" }),
+			"grok-imagine-video",
+			"xai-grok-build",
+		);
+
+		expect(resolved).toEqual({
+			provider: "xai-grok-build",
+			apiKey: "grok-token",
+			baseURL: "https://cli-chat-proxy.grok.com/v1",
+		});
+	});
 });

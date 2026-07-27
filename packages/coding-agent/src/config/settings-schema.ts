@@ -4838,6 +4838,17 @@ export const SETTINGS_SCHEMA = {
 			ordered: true,
 		},
 	},
+	"providers.videoXaiHttpProvider": {
+		type: "string",
+		default: "",
+		ui: {
+			tab: "providers",
+			group: "Services",
+			label: "Video xAI Credential Provider",
+			description:
+				"Optional OAuth provider id for xAI video generation; when set and compatible, it takes precedence over built-in xai-oauth and xai credentials",
+		},
+	},
 	"providers.videoOrder": {
 		type: "array",
 		default: [] as VideoProvider[],

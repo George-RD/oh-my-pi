@@ -142,7 +142,23 @@ export function resolveXAIHttpTransport(
 export async function resolveXAIHttpCredentials(
 	modelRegistry: ModelRegistry,
 	modelId?: string,
+	preferredProvider?: string,
 ): Promise<XAICredentials | null> {
+	if (preferredProvider) {
+		const provider = getOAuthProviders().find(
+			candidate => candidate.id === preferredProvider && candidate.xaiHttpCompat,
+		);
+		if (provider) {
+			const providerKey = await modelRegistry.getApiKeyForProvider(provider.id);
+			if (providerKey) {
+				return {
+					provider: provider.id,
+					apiKey: providerKey,
+					baseURL: provider.xaiHttpBaseUrl ?? DEFAULT_BASE_URL,
+				};
+			}
+		}
+	}
 	// 1. xai-oauth — only when a *dedicated* xai-oauth source exists.
 	const hasDedicatedXaiOAuth =
 		modelRegistry.authStorage.hasNonEnvCredential("xai-oauth") || Boolean($env.XAI_OAUTH_TOKEN);

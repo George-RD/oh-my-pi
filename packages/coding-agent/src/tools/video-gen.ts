@@ -740,8 +740,9 @@ async function resolveXaiKey(
 	modelRegistry: ModelRegistry,
 	model: string,
 	sessionId: string | undefined,
+	preferredProvider: string | undefined,
 ): Promise<{ apiKey: ApiKey; baseUrl: string } | null> {
-	const creds = await resolveXAIHttpCredentials(modelRegistry, model);
+	const creds = await resolveXAIHttpCredentials(modelRegistry, model, preferredProvider);
 	if (!creds) return null;
 	return {
 		apiKey: modelRegistry.resolver(creds.provider, { sessionId, baseUrl: creds.baseURL }),
@@ -902,7 +903,12 @@ export const videoGenTool: CustomTool<typeof videoGenSchema, VideoGenToolDetails
 			let job: VideoJobResult;
 			try {
 				if (provider === "xai") {
-					const resolved = await resolveXaiKey(ctx.modelRegistry, model, sessionId);
+					const resolved = await resolveXaiKey(
+						ctx.modelRegistry,
+						model,
+						sessionId,
+						ctx.settings?.get("providers.videoXaiHttpProvider") || undefined,
+					);
 					if (!resolved) {
 						missingCredentials = true;
 						continue;
