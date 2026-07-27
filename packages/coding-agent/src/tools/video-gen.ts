@@ -744,6 +744,13 @@ async function resolveXaiKey(
 ): Promise<{ apiKey: ApiKey; baseUrl: string } | null> {
 	const creds = await resolveXAIHttpCredentials(modelRegistry, model, preferredProvider);
 	if (!creds) return null;
+	// Video is billed per second, and the credential decides the endpoint, so
+	// record which provider/host won before anything is submitted.
+	logger.debug("Resolved xAI video credentials", {
+		provider: creds.provider,
+		baseUrl: creds.baseURL,
+		preferredProvider,
+	});
 	return {
 		apiKey: modelRegistry.resolver(creds.provider, { sessionId, baseUrl: creds.baseURL }),
 		baseUrl: creds.baseURL,
